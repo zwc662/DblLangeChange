@@ -28,7 +28,7 @@ def preproc_file(title, data, history = 5, delay = 1):
             # Controller
             x = x + data[i + 1][0:-3:1].tolist()
             y = data[i + 1][-3::1].tolist()
-        
+ 
         X.append(x)
         Y.append(y)
     return X, Y
@@ -59,23 +59,23 @@ def create_dataset(title = "Controller", history = 5, delay = 1):
     X, Y = preproc_data(title, history, delay)
     return data_utils.TensorDataset(torch.from_numpy(np.asarray(X)), torch.from_numpy(np.asarray(Y)))
 
-def create_dataset_augmentation(history = 5, delay = 2, scale = 10):
-    dataset_old = create_dataset(history, delay)
+def dataset_augmentation(dataset_old, scale = 10):
     tot_len = len(dataset_old)
+    print(tot_len)
     dataset = data_utils.ConcatDataset([dataset_old])
     for i in range(scale - 1):
-        datasets = data_utils.random_split(dataset_old, [int(tot_len/2), int(tot_len - tot_len/2)])
+        datasets = data_utils.random_split(dataset_old, [int(tot_len/2), tot_len - int(tot_len/2)])
         dataset = data_utils.ConcatDataset([dataset] + datasets)
     print(len(dataset))
     return dataset
 
 '''
 if __name__ == "__main__":
-    dataset = create_dataset(history = 5, delay = 1)
+    dataset = create_dataset_augmentation(title = "Controller", history = 5, delay = 1)
     dataloader = data_utils.DataLoader(dataset)
     for i_batch, sample_batched in enumerate(dataloader):
         if i_batch == 10:
             break
-        print(sample_batched[0][0])
-        print(sample_batched[1][0])
+        print(sample_batched[0])
+        print(sample_batched[1])
 '''

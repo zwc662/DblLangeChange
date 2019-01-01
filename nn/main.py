@@ -2,7 +2,7 @@ import argparse
 from pathlib import PurePath as Path
 import scipy.optimize
 
-from data_proc import create_dataset
+from data_proc import *
 from model import *
 
 import torch
@@ -32,6 +32,7 @@ def run_NARMA_L2(history = 5, delay = 2, batch_size = 1, max_epoch = 10):
 
 def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     dataset = create_dataset(title = "Controller", history = 5)
+    dataset = dataset_augmentation(dataset)
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
 
@@ -40,6 +41,32 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     net = Controller(size_input, size_output).to(device)
     print("Controller net built")
     run(net, dataloader, max_epoch, file_name = "Controller")
+
+def test_Controller(history = 5, batch_size = 1):
+    dataset = create_dataset(title = "Controller", history = 5)
+    dataloader = data_utils.DataLoader(dataset, batch_size = 1, shuffle = False)
+    print("Dataloader built")
+
+    size_input = history * 10 + 10 + 7
+    size_output = 3
+    net = Controller(size_input, size_output).to(device)
+    print("Controller net built")
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Controller90.pt')
+    net.load_state_dict(model_source)
+
+    criterion = torch.nn.MSELoss(reduction='sum')
+
+    for i_batch, sample_batched in enumerate(dataloader):
+        x = sample_batched[0].float().unsqueeze(0).to(device)
+        y = sample_batched[1].float().unsqueeze(0).to(device)
+        if len(x.size()) >= 1:
+            x = x[-1]
+        if len(y.size()) >= 1:
+            y = y[-1]
+        y_pred = net(x)[0]
+        print(y)
+        print(y_pred)
+        print(criterion(y, y_pred))
 
 def run(net, dataloader, max_epoch, file_name):
     criterion = torch.nn.MSELoss(reduction='sum')
@@ -53,15 +80,13 @@ def run(net, dataloader, max_epoch, file_name):
             torch.save(net.state_dict(), str(Path(os.path.abspath(__file__)).parents[0]) + '/' + file_name + str(i_epoch) + '.pt')
 
 
-
-
 def train(model, dataloader, criterion, optimizer, epoch):
     print("Start training")
     avg_loss = 0
     num_batches = 0
     for i_batch, sample_batched in enumerate(dataloader):
-        x = sample_batched[0].float().to(device)
-        y = sample_batched[1].float().to(device)
+        x = sample_batched[0].float().unsqueeze(0).to(device)
+        y = sample_batched[1].float().unsqueeze(0).to(device)
         if len(x.size()) >= 1:
             x = x[-1]
         if len(y.size()) >= 1:
@@ -87,19 +112,15 @@ def train(model, dataloader, criterion, optimizer, epoch):
         loss.backward()
         optimizer.step()
 
-
-def test(x, y = torch.tensor([0])):
-    net = torch.load(str(Path(__file__).parent) + '/NARMA.pt')
+def test(model, x, y = torch.tensor([0])):
     y_pred, f, g = net(x)
+    return y_pred.item()
 
-    err = torch.abs(y - y_pred)
-    x_ =  - f
-    
 
 if __name__ == "__main__":
     run_Controller(max_epoch = 100)
     #run_NARMA_L2(max_epoch = 100)
         
-
+    test_Controller(history = 5, batch_size = 1)
 
         
