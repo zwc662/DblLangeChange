@@ -68,6 +68,46 @@ def test_Controller(history = 5, batch_size = 1):
         print(y_pred)
         print(criterion(y, y_pred))
 
+def run_Dynamics(history = 5, delay = 1, batch_size = 10, max_epoch = 10):
+    dataset = create_dataset(title = "Dynamics", history = 5, delay = delay)
+    dataset = dataset_augmentation(dataset)
+    dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
+    print("Dataloader built")
+
+    size_input = history * 10 + 10
+    size_output = 1
+    net = Dynamics(size_input, size_output).to(device)
+    print("Dynamics net built")
+    run(net, dataloader, max_epoch, file_name = "Dynamics")
+
+def test_Dynamics(history = 5, delay = 1, batch_size = 1):
+    dataset = create_dataset(title = "Dynamics", history = 5, delay = delay)
+    dataloader = data_utils.DataLoader(dataset, batch_size = 1, shuffle = False)
+    print("Dataloader built")
+
+    size_input = history * 10 + 10
+    size_output = 1
+    net = Dynamics(size_input, size_output).to(device)
+    print("Dynamics net built")
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics90.pt')
+    net.load_state_dict(model_source)
+    print("Dynamics net loaded")
+
+    criterion = torch.nn.MSELoss(reduction='sum')
+
+    for i_batch, sample_batched in enumerate(dataloader):
+        x = sample_batched[0].float().unsqueeze(0).to(device)
+        y = sample_batched[1].float().unsqueeze(0).to(device)
+        if len(x.size()) >= 1:
+            x = x[-1]
+        if len(y.size()) >= 1:
+            y = y[-1]
+        y_pred = net(x)[0]
+        print(y)
+        print(y_pred)
+        print(criterion(y, y_pred))
+
+
 def run(net, dataloader, max_epoch, file_name):
     criterion = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4)
@@ -76,7 +116,7 @@ def run(net, dataloader, max_epoch, file_name):
         print("Begin epoch %d" % (i_epoch))
         train(net, dataloader, criterion, optimizer, i_epoch)
     
-        if i_epoch % 100 == 0:
+        if i_epoch % 10 == 0:
             torch.save(net.state_dict(), str(Path(os.path.abspath(__file__)).parents[0]) + '/' + file_name + str(i_epoch) + '.pt')
 
 
@@ -118,9 +158,13 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-    run_Controller(max_epoch = 100)
+    #run_Controller(max_epoch = 100)
+    #test_Controller(history = 5, batch_size = 1)
+
     #run_NARMA_L2(max_epoch = 100)
+
+    run_Dynamics(history = 5, delay = 5, max_epoch = 100)
+    test_Dynamics(history = 5, delay = 5, batch_size = 1)
         
-    test_Controller(history = 5, batch_size = 1)
 
         

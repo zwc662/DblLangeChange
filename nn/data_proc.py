@@ -28,6 +28,10 @@ def preproc_file(title, data, history = 5, delay = 1):
             # Controller
             x = x + data[i + 1][0:-3:1].tolist()
             y = data[i + 1][-3::1].tolist()
+        elif title == "Dynamics":
+            # Dynamics
+            x = x
+            y = [data[i + delay][0]]
  
         X.append(x)
         Y.append(y)
@@ -37,14 +41,15 @@ def preproc_file(title, data, history = 5, delay = 1):
 def preproc_data(title = "Controller", history = 5, delay = 1):
     X = []
     Y = []
-    if delay > 1 and title == "NARMA_L2":
-        ## NARMA_L2
+    if title == "NARMA_L2" or "Dynamics" or "Controller":
+        ## All consider time sequence
         for i in range(1, 6):
             file_name = str(Path(os.path.abspath(__file__)).parents[1]) + '/DblLaneChange' + str(i) + '.mat'
             data = load_file(file_name, 'data_idx')
             X_, Y_ = preproc_file(title, data, history, delay)
             X = X + X_
             Y = Y + Y_
+    '''
     elif title == "Controller":
         ## Controller
         file_name = str(Path(os.path.abspath(__file__)).parents[1]) + '/DblLaneChange.mat'
@@ -52,6 +57,7 @@ def preproc_data(title = "Controller", history = 5, delay = 1):
         X_, Y_ = preproc_file(title, data, history)
         X = X + X_
         Y = Y + Y_
+    '''
     return X, Y
 
 

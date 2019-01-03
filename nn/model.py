@@ -85,14 +85,33 @@ class Controller(nn.Module):
             x = x.unsqueeze(0)
         x = nn.functional.relu(self.affine1(x))
         x = nn.functional.relu(self.affine2(x))
-        '''
-        x = nn.functional.sigmoid(self.affine3(x))
+
+        x = self.affine3(x)
         x_0 = x[:, 0].unsqueeze(1)
         x_1 = nn.functional.relu(x[:, 1]).unsqueeze(1)
-        x_2 = -nn.functional.relu(-x[:, 1]).unsqueeze(1)
+        x_2 = nn.functional.relu(x[:, 2]).unsqueeze(1)
 
         y = torch.cat((x_0, x_1, x_2), dim = 1)
-        '''
-        y = torch.tanh(self.affine3(x))
-
+        #y = torch.tanh(self.affine3(x))
+        #y = self.affine3(x)
+        
         return y, None, None
+
+class Dynamics(nn.Module):
+    def __init__(self, size_input, size_output):
+        super(Dynamics, self).__init__()
+        self.size_input = size_input
+        self.size_output = size_output
+
+        self.affine1 = nn.Linear(self.size_input, 64)
+        self.affine2 = nn.Linear(64, 64)
+        self.affine3 = nn.Linear(64, self.size_output)
+
+    def forward(self, x):
+        if len(x.size()) == 1:
+            x = x.unsqueeze(0)
+        x = nn.functional.relu(self.affine1(x))
+        x = nn.functional.relu(self.affine2(x))
+        y = self.affine3(x)
+        return y, None, None
+
