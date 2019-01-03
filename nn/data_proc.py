@@ -31,7 +31,7 @@ def preproc_file(title, data, history = 5, delay = 1):
         elif title == "Dynamics":
             # Dynamics
             x = x
-            y = [data[i + delay][0]]
+            y = [data[i + delay][3]]
  
         X.append(x)
         Y.append(y)

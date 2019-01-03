@@ -111,7 +111,7 @@ class Dynamics(nn.Module):
         if len(x.size()) == 1:
             x = x.unsqueeze(0)
         x = nn.functional.relu(self.affine1(x))
-        x = nn.functional.relu(self.affine2(x))
+        #x = nn.functional.relu(self.affine2(x))
         y = self.affine3(x)
         return y, None, None
 

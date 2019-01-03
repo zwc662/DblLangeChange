@@ -19,7 +19,7 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 def run_NARMA_L2(history = 5, delay = 2, batch_size = 1, max_epoch = 10):
-    dataset = create_dataset(title = "NARMA_L2", history = 5, delay = 2)
+    dataset = create_dataset(title = "NARMA_L2", history = history, delay = delay)
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
 
@@ -31,7 +31,7 @@ def run_NARMA_L2(history = 5, delay = 2, batch_size = 1, max_epoch = 10):
     run(net, dataloader, max_epoch, file_name = "NARMA_L2")
 
 def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
-    dataset = create_dataset(title = "Controller", history = 5)
+    dataset = create_dataset(title = "Controller", history = history)
     dataset = dataset_augmentation(dataset)
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
@@ -43,7 +43,7 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     run(net, dataloader, max_epoch, file_name = "Controller")
 
 def test_Controller(history = 5, batch_size = 1):
-    dataset = create_dataset(title = "Controller", history = 5)
+    dataset = create_dataset(title = "Controller", history = history)
     dataloader = data_utils.DataLoader(dataset, batch_size = 1, shuffle = False)
     print("Dataloader built")
 
@@ -51,8 +51,11 @@ def test_Controller(history = 5, batch_size = 1):
     size_output = 3
     net = Controller(size_input, size_output).to(device)
     print("Controller net built")
-    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Controller90.pt')
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Controller30.pt')
     net.load_state_dict(model_source)
+    for name, param in net.named_parameters():
+        if param.requires_grad:
+            print(name, param.data)
 
     criterion = torch.nn.MSELoss(reduction='sum')
 
@@ -64,12 +67,14 @@ def test_Controller(history = 5, batch_size = 1):
         if len(y.size()) >= 1:
             y = y[-1]
         y_pred = net(x)[0]
-        print(y)
-        print(y_pred)
-        print(criterion(y, y_pred))
+        if abs(x[0, 3]) > 4 or abs(x[0, 3])<2:
+            if abs(y[0, 0] - y_pred[0, 0]) > 0.1:
+                print(x[0, 3])
+                print(y)
+                print(y_pred)
 
 def run_Dynamics(history = 5, delay = 1, batch_size = 10, max_epoch = 10):
-    dataset = create_dataset(title = "Dynamics", history = 5, delay = delay)
+    dataset = create_dataset(title = "Dynamics", history = history, delay = delay)
     dataset = dataset_augmentation(dataset)
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
@@ -81,7 +86,7 @@ def run_Dynamics(history = 5, delay = 1, batch_size = 10, max_epoch = 10):
     run(net, dataloader, max_epoch, file_name = "Dynamics")
 
 def test_Dynamics(history = 5, delay = 1, batch_size = 1):
-    dataset = create_dataset(title = "Dynamics", history = 5, delay = delay)
+    dataset = create_dataset(title = "Dynamics", history = history, delay = delay)
     dataloader = data_utils.DataLoader(dataset, batch_size = 1, shuffle = False)
     print("Dataloader built")
 
@@ -89,7 +94,7 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
     size_output = 1
     net = Dynamics(size_input, size_output).to(device)
     print("Dynamics net built")
-    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics90.pt')
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics20.pt')
     net.load_state_dict(model_source)
     print("Dynamics net loaded")
 
@@ -105,7 +110,6 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
         y_pred = net(x)[0]
         print(y)
         print(y_pred)
-        print(criterion(y, y_pred))
 
 
 def run(net, dataloader, max_epoch, file_name):
@@ -158,13 +162,13 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-    #run_Controller(max_epoch = 100)
-    #test_Controller(history = 5, batch_size = 1)
+    #run_Controller(history = 1, max_epoch = 100)
+    #test_Controller(history = 1, batch_size = 1)
 
     #run_NARMA_L2(max_epoch = 100)
 
-    run_Dynamics(history = 5, delay = 5, max_epoch = 100)
-    test_Dynamics(history = 5, delay = 5, batch_size = 1)
+    run_Dynamics(history = 1, delay = 1, max_epoch = 30)
+    test_Dynamics(history = 1, delay = 1, batch_size = 1)
         
 
         
