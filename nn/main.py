@@ -18,8 +18,9 @@ import pickle
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
-def run_NARMA_L2(history = 5, delay = 2, batch_size = 1, max_epoch = 10):
+def run_NARMA_L2(history = 5, delay = 2, batch_size = 10, max_epoch = 10):
     dataset = create_dataset(title = "NARMA_L2", history = history, delay = delay)
+    dataset = dataset_augmentation(dataset)
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
 
@@ -29,6 +30,37 @@ def run_NARMA_L2(history = 5, delay = 2, batch_size = 1, max_epoch = 10):
     net = NARMA_L2(size_input_1, size_input_2, size_output).to(device)
     print("NARMA_L2 net built")
     run(net, dataloader, max_epoch, file_name = "NARMA_L2")
+
+
+def test_NARMA_L2(history = 5, delay = 2, batch_size = 1):
+    dataset = create_dataset(title = "NARMA_L2", history = history, delay = delay)
+    dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = False)
+    print("Dataloader built")
+
+    size_input_1 = history * 10 + 10
+    size_input_2 = 3
+    size_output = 3
+    net = NARMA_L2(size_input_1, size_input_2, size_output).to(device)
+    print("NARMA_L2 net built")
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/NARMA_L290.pt')
+    net.load_state_dict(model_source)
+
+    for name, param in net.named_parameters():
+        if param.requires_grad:
+            print(name, param.data)
+
+    criterion = torch.nn.MSELoss(reduction='sum')
+
+    for i_batch, sample_batched in enumerate(dataloader):
+        x = sample_batched[0].float().unsqueeze(0).to(device)
+        y = sample_batched[1].float().unsqueeze(0).to(device)
+        if len(x.size()) >= 1:
+            x = x[-1]
+        if len(y.size()) >= 1:
+            y = y[-1]
+        y_pred = net(x)[0]
+        print(y)
+        print(y_pred)
 
 def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     dataset = create_dataset(title = "Controller", history = history)
@@ -139,8 +171,8 @@ def train(model, dataloader, criterion, optimizer, epoch):
         assert x.size() == (size_input_1 + size_input_2,)
         assert y.size() == (size_output,)
         '''
-
         y_pred, f, g = model(x)
+       
         loss = criterion(y_pred, y)
 
         num_batches += 1
@@ -162,12 +194,15 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
+
+    #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
+    #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
+
     #run_Controller(history = 1, max_epoch = 100)
     #test_Controller(history = 1, batch_size = 1)
 
-    #run_NARMA_L2(max_epoch = 100)
 
-    run_Dynamics(history = 1, delay = 1, max_epoch = 30)
+    run_Dynamics(history = 1, delay = 1, max_epoch = 100)
     test_Dynamics(history = 1, delay = 1, batch_size = 1)
         
 

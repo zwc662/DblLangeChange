@@ -30,9 +30,10 @@ class NARMA_L2(nn.Module):
         '''
 
     def forward(self, x):
-        assert x.size() == (self.size_input_1 + self.size_input_2,)
-        x_1 = torch.narrow(x, 0, 0, self.size_input_1)
-        x_2 = torch.diag(torch.narrow(x, 0, self.size_input_1, 3))
+        if len(x.size()) == 1:
+            x = x.unsqueeze(0)
+        x_1 = torch.narrow(x, 1, 0, self.size_input_1)
+        x_2 = torch.narrow(x, 1, self.size_input_1, 3)
         
         '''
         x_2_1 = torch.narrow(x, 0, self.size_input_1, 1)
@@ -43,12 +44,12 @@ class NARMA_L2(nn.Module):
      
         x_1_f = nn.functional.relu(self.affine_f_1(x_1))
         x_1_f = nn.functional.relu(self.affine_f_2(x_1_f))
-        x_1_f = torch.tanh(self.affine_f_3(x_1_f))
+        x_1_f = self.affine_f_3(x_1_f)
 
 
         x_1_g_1 = nn.functional.relu(self.affine_g_1_1(x_1))
         x_1_g_1 = nn.functional.relu(self.affine_g_1_2(x_1_g_1))
-        x_1_g_1 = torch.tanh(self.affine_g_1_3(x_1_g_1))
+        x_1_g_1 = self.affine_g_1_3(x_1_g_1)
 
         '''
         x_1_g_2 = torch.tanh(self.affine_g_1_1(x_1))
@@ -63,7 +64,9 @@ class NARMA_L2(nn.Module):
             torch.matmul(x_1_g_1, x_2_1),
             torch.matmul(x_1_g_1, x_2_1))]
         '''
-        y = torch.matmul(x_1_g_1, x_2) + x_1_f
+        y = 0.0 * x_1_f
+        for i in range(y.size()[0]):
+            y[i] = torch.matmul(x_1_g_1[i], torch.diag(x_2[i])) + x_1_f[i]
         
 
         return y, x_1_f, x_1_g_1
