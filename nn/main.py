@@ -72,7 +72,11 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     size_output = 3
     net = Controller(size_input, size_output).to(device)
     print("Controller net built")
-    run(net, dataloader, max_epoch, file_name = "Controller")
+    def criterion(y_pred, y):
+        return torch.sum((y_pred - y)**2 + (y_pred)**2)/y_pred.size()[0]
+
+    run(net, dataloader, max_epoch, file_name = "Controller", criterion = None)
+
 
 def test_Controller(history = 5, batch_size = 1):
     dataset = create_dataset(title = "Controller", history = history)
@@ -83,7 +87,7 @@ def test_Controller(history = 5, batch_size = 1):
     size_output = 3
     net = Controller(size_input, size_output).to(device)
     print("Controller net built")
-    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Controller30.pt')
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Controller90.pt')
     net.load_state_dict(model_source)
     for name, param in net.named_parameters():
         if param.requires_grad:
@@ -101,6 +105,7 @@ def test_Controller(history = 5, batch_size = 1):
         y_pred = net(x)[0]
         if abs(x[0, 3]) > 4 or abs(x[0, 3])<2:
             if abs(y[0, 0] - y_pred[0, 0]) > 0.1:
+                print(x[0, 1])
                 print(x[0, 3])
                 print(y)
                 print(y_pred)
@@ -126,7 +131,7 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
     size_output = 1
     net = Dynamics(size_input, size_output).to(device)
     print("Dynamics net built")
-    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics20.pt')
+    model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics90.pt')
     net.load_state_dict(model_source)
     print("Dynamics net loaded")
 
@@ -144,9 +149,11 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
         print(y_pred)
 
 
-def run(net, dataloader, max_epoch, file_name):
-    criterion = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.SGD(net.parameters(), lr=1e-4)
+def run(net, dataloader, max_epoch, file_name, criterion = None):
+    if criterion is None:
+        criterion = torch.nn.MSELoss(reduction='sum')
+    optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum = 0.9)
+    #optimizer = torch.optim.Adam(net.parameters(), lr=1e-4, weight_decay = 1)
     
     for i_epoch in range(max_epoch):
         print("Begin epoch %d" % (i_epoch))
@@ -199,11 +206,11 @@ if __name__ == "__main__":
     #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
 
     #run_Controller(history = 1, max_epoch = 100)
-    #test_Controller(history = 1, batch_size = 1)
+    test_Controller(history = 1, batch_size = 1)
 
 
-    run_Dynamics(history = 1, delay = 1, max_epoch = 100)
-    test_Dynamics(history = 1, delay = 1, batch_size = 1)
+    #run_Dynamics(history = 1, delay = 5, max_epoch = 100)
+    #test_Dynamics(history = 1, delay = 5, batch_size = 1)
         
 
         

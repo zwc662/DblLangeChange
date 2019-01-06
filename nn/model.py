@@ -89,14 +89,18 @@ class Controller(nn.Module):
         x = nn.functional.relu(self.affine1(x))
         x = nn.functional.relu(self.affine2(x))
 
+        ##### x_0 affine, x_1, x_2 relu ######
+        '''
         x = self.affine3(x)
         x_0 = x[:, 0].unsqueeze(1)
         x_1 = nn.functional.relu(x[:, 1]).unsqueeze(1)
         x_2 = nn.functional.relu(x[:, 2]).unsqueeze(1)
-
+        
         y = torch.cat((x_0, x_1, x_2), dim = 1)
-        #y = torch.tanh(self.affine3(x))
-        #y = self.affine3(x)
+        '''
+
+        y = nn.functional.relu(self.affine3(x))
+        y = torch.log(y)
         
         return y, None, None
 
@@ -114,7 +118,8 @@ class Dynamics(nn.Module):
         if len(x.size()) == 1:
             x = x.unsqueeze(0)
         x = nn.functional.relu(self.affine1(x))
-        #x = nn.functional.relu(self.affine2(x))
         y = self.affine3(x)
+        #y = nn.functional.relu(self.affine3(x))
+        #y = torch.log(y)
         return y, None, None
 
