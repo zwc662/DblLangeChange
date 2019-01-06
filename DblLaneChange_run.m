@@ -39,14 +39,14 @@ latRefbp = model_params.latRefbp;
 for idx = numExperiments:-1:1
     in(idx) = Simulink.SimulationInput(mdl);
     in(idx) = in(idx).setBlockParameter([mdl '/Lane Change Reference Generator'],...
-    'latRefbp', latRefbp);
+    'latRefbp', mat2str(latRefbp(idx, :)));
     in(idx) = in(idx).setBlockParameter([mdl '/Lane Change Reference Generator'],...
-    'latRef', latRef);
+    'latRef', mat2str(latRef(idx, :)));
     in(idx) = in(idx).setBlockParameter([mdl '/Environment/Friction'],...
-        'Value',['ones(4,1).*',num2str(lambdamu(idx))]);
+        'Value',['ones(4,1).*',num2str(lambdamu(2))]);
 end
 
-set_param(mdl, 'StopTime', '30')
+set_param(mdl, 'StopTime', '20')
 save_system(mdl)
 tic;
 simout = parsim(in, 'ShowSimulationManager', 'on');

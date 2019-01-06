@@ -2,32 +2,19 @@ function net = DblLaneChange_train(train_params, inputs, targets)
 
 if train_params.random == true
     [wid, len] = size(inputs);
-    inputs_ = zeros(size(inputs));
-    targets_ = zeros(size(targets));
-    shuffle = randperm(len);
-    
-    for i=1:len
-        idx = shuffle(i);
-        inputs_(:, i) = inputs(:, idx);
-        targets_(:, i) = targets(:, idx);
-        %{
-        targets_(2, i) = targets(2, idx) + targets(3, idx);
-        targets_(1, i) = targets(1, idx);
-        %}
-    end;
-
+    idx = randperm(size(inputs,2));
+    X = inputs(:, idx);
+    Y = targets(:, idx);
 end;
 
-    
-inputs = inputs_;
-targets = targets_;
-assert(isequal(size(inputs), size(inputs_)));   
+assert(isequal(size(inputs), size(X))); 
+assert(isequal(size(targets), size(Y)));
 fprintf("Assertion passed!!!");
 
 
 % Create a Fitting Network
 hiddenLayerSize = train_params.hiddelLayerSize;
-net = cascadeforwardnet(hiddenLayerSize, 'trainlm');
+net = fitnet(hiddenLayerSize, 'trainlm');
 
 % Set up Division of Data for Training, Validation, Testing
 net.divideParam.trainRatio = train_params.trainRatio;
