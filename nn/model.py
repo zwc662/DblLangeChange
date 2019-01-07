@@ -100,8 +100,8 @@ class Controller(nn.Module):
         '''
 
         y = nn.functional.relu(self.affine3(x))
-        y = torch.log(y + 1E-4)
-        
+        #y = torch.log(y + 1E-4)
+        y = nn.functional.sigmoid(y + 100)
         return y, None, None
 
 class Dynamics(nn.Module):
