@@ -100,7 +100,7 @@ class Controller(nn.Module):
         '''
 
         y = nn.functional.relu(self.affine3(x))
-        y = torch.log(y)
+        y = torch.log(y + 1E-4)
         
         return y, None, None
 

@@ -72,10 +72,12 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     size_output = 3
     net = Controller(size_input, size_output).to(device)
     print("Controller net built")
-    def criterion(y_pred, y):
-        return torch.sum((y_pred - y)**2 + (y_pred)**2)/y_pred.size()[0]
+    def criterion(y_pred, y, epoch = 1):
+        if epoch == 0:
+            epoch = 1
+        return torch.mean((y_pred - y)**2 + (y_pred)**2/epoch)
 
-    run(net, dataloader, max_epoch, file_name = "Controller", criterion = None)
+    run(net, dataloader, max_epoch, file_name = "Controller", criterion = criterion)
 
 
 def test_Controller(history = 5, batch_size = 1):
@@ -151,7 +153,9 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
 
 def run(net, dataloader, max_epoch, file_name, criterion = None):
     if criterion is None:
-        criterion = torch.nn.MSELoss(reduction='sum')
+        def criterion(y_pred, y, epoch):
+            criterion = torch.nn.MSELoss(reduction='sum')
+            return criterion(y_pred, y)
     optimizer = torch.optim.SGD(net.parameters(), lr=1e-4, momentum = 0.9)
     #optimizer = torch.optim.Adam(net.parameters(), lr=1e-4, weight_decay = 1)
     
@@ -180,7 +184,7 @@ def train(model, dataloader, criterion, optimizer, epoch):
         '''
         y_pred, f, g = model(x)
        
-        loss = criterion(y_pred, y)
+        loss = criterion(y_pred, y, epoch)
 
         num_batches += 1
         avg_loss += loss.item()
@@ -202,15 +206,15 @@ def test(model, x, y = torch.tensor([0])):
 
 if __name__ == "__main__":
 
-    #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
-    #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
 
     #run_Controller(history = 1, max_epoch = 100)
-    test_Controller(history = 1, batch_size = 1)
+    #test_Controller(history = 1, batch_size = 1)
 
 
     #run_Dynamics(history = 1, delay = 5, max_epoch = 100)
     #test_Dynamics(history = 1, delay = 5, batch_size = 1)
         
+    run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
+    test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
 
         
