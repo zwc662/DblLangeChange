@@ -207,8 +207,8 @@ def test(model, x, y = torch.tensor([0])):
 if __name__ == "__main__":
 
 
-    run_Controller(history = 1, max_epoch = 100)
-    test_Controller(history = 1, batch_size = 1)
+    #run_Controller(history = 1, max_epoch = 100)
+    #test_Controller(history = 1, batch_size = 1)
 
 
     #run_Dynamics(history = 1, delay = 5, max_epoch = 100)
@@ -216,5 +216,8 @@ if __name__ == "__main__":
         
     #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
     #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
+
+	#run_series(history = 5, delay = 1, max_epoch = 100)
+    #test_series(history = 5, delay = 1, max_epoch = 100)
 
         
