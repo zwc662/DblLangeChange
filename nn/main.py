@@ -77,7 +77,7 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
             epoch = 1
         return torch.mean((y_pred - y)**2 + (y_pred)**2/epoch)
 
-    run(net, dataloader, max_epoch, file_name = "Controller", criterion = criterion)
+    run(net, dataloader, max_epoch, file_name = "Controller", criterion = None)
 
 
 def test_Controller(history = 5, batch_size = 1):
