@@ -101,7 +101,7 @@ class Controller(nn.Module):
 
         y = nn.functional.relu(self.affine3(x))
         y = torch.log(y + 1E-4)
-        
+        #y = y - 1
         return y, None, None
 
 class Dynamics(nn.Module):

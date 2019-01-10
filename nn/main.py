@@ -75,7 +75,8 @@ def run_Controller(history = 5, batch_size = 10, max_epoch = 10):
     def criterion(y_pred, y, epoch = 1):
         if epoch == 0:
             epoch = 1
-        return torch.mean((y_pred - y)**2 + (y_pred)**2/epoch)
+        #return torch.mean((y_pred - y)**2 + (y_pred)**2/epoch)
+        return ((y_pred - y)**2 + (y_pred)**2/epoch).mean()
 
     run(net, dataloader, max_epoch, file_name = "Controller", criterion = criterion)
 
@@ -105,8 +106,8 @@ def test_Controller(history = 5, batch_size = 1):
         if len(y.size()) >= 1:
             y = y[-1]
         y_pred = net(x)[0]
-        if abs(x[0, 3]) > 4 or abs(x[0, 3])<2:
-            if abs(y[0, 0] - y_pred[0, 0]) > 0.1:
+        if True or abs(x[0, 3]) > 4 or abs(x[0, 3])<2:
+            if True or abs(y[0, 0] - y_pred[0, 0]) > 0.1:
                 print(x[0, 1])
                 print(x[0, 3])
                 print(y)
@@ -205,16 +206,17 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-
-
-    #run_Controller(history = 1, max_epoch = 100)
-    #test_Controller(history = 1, batch_size = 1)
+	run_Controller(history = 0, max_epoch = 100)
+	test_Controller(history = 0, batch_size = 1)
 
 
     #run_Dynamics(history = 1, delay = 5, max_epoch = 100)
     #test_Dynamics(history = 1, delay = 5, batch_size = 1)
         
-    run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
-    test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
+    #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
+    #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
+
+	#run_series(history = 5, delay = 1, max_epoch = 100)
+    #test_series(history = 5, delay = 1, max_epoch = 100)
 
         
