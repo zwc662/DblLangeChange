@@ -206,8 +206,8 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-	run_Controller(history = 0, max_epoch = 100)
-	test_Controller(history = 0, batch_size = 1)
+    run_Controller(history = 0, max_epoch = 100)
+    test_Controller(history = 0, batch_size = 1)
 
 
     #run_Dynamics(history = 1, delay = 5, max_epoch = 100)
