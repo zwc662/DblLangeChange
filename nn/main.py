@@ -210,8 +210,8 @@ if __name__ == "__main__":
     #rest_Controller(history = 0, batch_size = 1)
 
 
-    run_Dynamics(history = 0, delay = 1, max_epoch = 100)
-    test_Dynamics(history = 0, delay = 1, batch_size = 1)
+    run_Dynamics(history = 0, delay = 10, max_epoch = 100)
+    test_Dynamics(history = 0, delay = 10, batch_size = 1)
         
     #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
     #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
