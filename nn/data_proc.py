@@ -43,7 +43,7 @@ def preproc_data(title = "Controller", history = 5, delay = 1):
     Y = []
     if title == "NARMA_L2" or "Dynamics" or "Controller":
         ## All consider time sequence
-        for i in range(1, 6):
+        for i in range(1, 11):
             file_name = str(Path(os.path.abspath(__file__)).parents[1]) + '/DblLaneChange' + str(i) + '.mat'
             data = load_file(file_name, 'data_idx')
             X_, Y_ = preproc_file(title, data, history, delay)
