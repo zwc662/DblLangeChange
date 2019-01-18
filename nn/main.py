@@ -119,8 +119,8 @@ def run_Dynamics(history = 5, delay = 1, batch_size = 10, max_epoch = 10):
     dataloader = data_utils.DataLoader(dataset, batch_size = batch_size, shuffle = True)
     print("Dataloader built")
 
-    size_input = history * 10 + 10
-    size_output = 7
+    size_input = history * 8 + 8
+    size_output = 5
     net = Dynamics(size_input, size_output).to(device)
     print("Dynamics net built")
     run(net, dataloader, max_epoch, file_name = "Dynamics")
@@ -130,8 +130,8 @@ def test_Dynamics(history = 5, delay = 1, batch_size = 1):
     dataloader = data_utils.DataLoader(dataset, batch_size = 1, shuffle = False)
     print("Dataloader built")
 
-    size_input = history * 10 + 10
-    size_output = 7
+    size_input = history * 8 + 8
+    size_output = 5
     net = Dynamics(size_input, size_output).to(device)
     print("Dynamics net built")
     model_source = torch.load(str(Path(os.path.abspath(__file__)).parents[0]) + '/Dynamics90.pt')
@@ -206,8 +206,8 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-    run_Controller(history = 0, max_epoch = 100)
-    test_Controller(history = 0, batch_size = 1)
+    #run_Controller(history = 0, max_epoch = 100)
+    #rest_Controller(history = 0, batch_size = 1)
 
 
     run_Dynamics(history = 0, delay = 1, max_epoch = 100)

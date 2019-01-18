@@ -30,8 +30,8 @@ def preproc_file(title, data, history = 5, delay = 1):
             y = data[i + 1][-3::1].tolist()
         elif title == "Dynamics":
             # Dynamics
-            x = x
-            y = data[i + delay][0:-3:1].tolist()
+            x = x[2::1]
+            y = data[i + delay][2:-3:1].tolist()
 
         X.append(x)
         Y.append(y)
