@@ -206,12 +206,12 @@ def test(model, x, y = torch.tensor([0])):
 
 
 if __name__ == "__main__":
-    #run_Controller(history = 0, max_epoch = 100)
-    #rest_Controller(history = 0, batch_size = 1)
+    run_Controller(history = 0, max_epoch = 100)
+    test_Controller(history = 0, batch_size = 1)
 
 
-    run_Dynamics(history = 0, delay = 10, max_epoch = 100)
-    test_Dynamics(history = 0, delay = 10, batch_size = 1)
+    #run_Dynamics(history = 0, delay = 10, max_epoch = 100)
+    #test_Dynamics(history = 0, delay = 10, batch_size = 1)
         
     #run_NARMA_L2(history = 2, delay = 2, max_epoch = 100)
     #test_NARMA_L2(history = 2, delay = 2, batch_size = 1)
